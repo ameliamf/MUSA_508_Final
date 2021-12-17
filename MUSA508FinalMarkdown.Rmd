@@ -17,12 +17,15 @@ editor_options:
 Our firm was contracted by New Jersey Transit to create a model-based dashboard that would aid them in their Capital Improvements Program (CIP) decision-making, by analyzing systematic delays. Unfortunately, New Jersey Transit has frequent issues with delayed trains, but there are plans to spend more money on infrastructure improvements that will make the system run more smoothly. In 2019, and for the second year in a row, NJT Trains broke down more than any other system in the county (according to the Federal Transit Administration). In January 2021, NJT ordered 25 new dual-powered locomotives that are in the process of being distributed and in 2023, 113 new multi-level rail cars will arrive to replace the 40-year old previous fleet. The mechanical failure rate of the new cars is a fraction of the previous fleet's. 
 Our model-based dashboard sets out to help NJT track where delays are the longest and prioritize lines that are experiencing frequent delays with the most profit potential by predicting delays into the future for CIP planning. Currently, the model focuses on the 5 lines that go directly into NYC. Check out the further report and model below: 
 
-## Project Pitch + Dashboard Mockups
-See our project pitch video at this link: https://www.youtube.com/watch?v=o9lDDhZ5rvc
-The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our potential dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT employee users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service leaving a net value.
-
 ## Source
 https://www.nj.com/news/2021/01/nj-transit-trains-ranked-the-worst-in-the-nation-again.html
+
+# Project Pitch + Dashboard Mockups
+See our project pitch video at this link: https://www.youtube.com/watch?v=o9lDDhZ5rvc
+
+## Project Pitch Summary
+The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our potential dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT employee users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service leaving a net value.
+
 
 # Methodology
 Our methodology for this analysis can be categorized in three different processes: data collection + manipulation, model building, and evaluation 
@@ -43,7 +46,7 @@ Our methodology for this analysis can be categorized in three different processe
 
 # Set Up
 Below is the setup for the analysis, including packages necessary and color palettes.
-```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = TRUE, include = TRUE, fig.keep='all'}
+```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = TRUE, include = TRUE, fig.keep='all', fig.align = "center"}
 
 #knitr::opts_chunk$set(echo=TRUE, warning=FALSE, messages=FALSE, results = 'hide', include=TRUE, fig.keep = 'all')
 
@@ -67,15 +70,14 @@ source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-L
 root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
 
 
-palette5 <- c("#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c")
-palette4 <- c("#D2FBD4","#92BCAB","#527D82","#123F5A")
-palette2 <- c("#6baed6","#08519c")
+palette5 <- c("#510541","#AEC4D6","#F5853E","#B61D8E","#004F99")
+palette2 <- c("#F5853E","#B61D8E")
 palettechloro <-c("#fef0d9", "#fdcc8a", "#fc8d59", "#e34a33", "#b30000")
 ```
 
 # Importing + Filtering the Data
 The code chunk below imports the New Jersey Transit data and completes the initial, necessary cleaning. Data from September and October 2019 is used to train on. These two months were chosen under the pretense that they would illustrate regular usage patterns. November 2019 data will be predicted on. NJT data is filtered for lines going directly into New York City, for which there are 5. Time intervals, especially lines running every hour, are also created for later analysis. 
-```{r Import Data}
+```{r Import Data, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = FALSE, include = TRUE}
 
 setwd("C:/Users/ammar/OneDrive/Desktop/CPLN592/Final/MUSA_508_Final")
 
@@ -107,7 +109,7 @@ AllData <- #not sure about actual_time #copied from the book but cut out some of
 
 ## NJT Context Map
 Below is a map of the lines selected for prediction analysis. 
-```{r Line Data}
+```{r Line Data, fig.align = "center"}
 NJTRoutes <- 
   st_read("https://opendata.arcgis.com/datasets/e6701817be974795aecc7f7a8cc42f79_0.geojson") %>%
   st_transform('ESRI:102711') %>%
@@ -263,14 +265,14 @@ ride.Test <- filter(ride.panel, week >= 45)
 # Exploratory Analysis
 Our feature engineering and model creation was built on the following analysis. This analysis section includes a wealth of visuals relating delays to the various features of the model. 
 - Figures 2.1a/b/c chart weather over the 3-month period. 
-- Figure 2.2a/b charts lines and delay minutes of data from Sept & Oct 2019
-- Figure 2.3 depicts delay minutes per day over each week
-- Figure 2.4 shows delay minutes as a function of the spatial lags 
-- Figure 2.5 shows delay minutes as a function of temperature
+- Figure 2.2 shows delay minutes as a function of temperature
+- Figure 2.3 shows delay minutes as a function of various categorical variables
+- Figure 2.4a/b charts lines and delay minutes of data from Sept & Oct 2019
+- Figure 2.5 depicts delay minutes per day over each week
+- Figure 2.6 shows delay minutes as a function of the spatial lags 
 - Figure 2.6 is a histogram of log(delays)
 - Figure 2.7 is a correlation plot of numeric variables in the model
 - Figure 2.8 depicts delay minutes as a function of max stops (how many stops on a line)
-- Figure 2.9 shows delay minutes as a function of various categorical variables
 
 Highlights of our exploratory analysis are: 
 - The NJ Coast and Morristown line have the longest summary of delays on the training set
@@ -280,8 +282,7 @@ Highlights of our exploratory analysis are:
 - Longer delays occur in hotter weather 
 - Longer delays happen in PM peak service times (4-7 PM) 
 - Delays have a cyclical pattern, often occurring during weekend service 
-```{r Exploratory Analysis}
-
+```{r Exploratory Analysis 1, fig.height = 12, fig.width = 12, fig.align = "center", warning=FALSE}
 # charting weather over the 3 month period
 grid.arrange(top = "Weather Data - NYC & North Jersey - September to November 2019",
   ggplot(weather.Panel, aes(interval60,Percipitation)) + geom_line() + 
@@ -291,10 +292,38 @@ grid.arrange(top = "Weather Data - NYC & North Jersey - September to November 20
   ggplot(weather.Panel, aes(interval60,Temperature)) + geom_line() + 
     labs(title="Temperature", x="Hour", y="Temperature", caption = "Figure 2.1c") + plotTheme())
 
-#charting delays by line
+# Weather EA
+ride.panel %>%
+  group_by(interval60) %>% 
+  summarize(DM = mean(delay_minutes),
+            Temperature = first(Temperature)) %>%
+  mutate(week = week(interval60)) %>%
+  ggplot(aes(Temperature, DM)) + 
+    geom_point() + geom_smooth(method = "lm", se= FALSE, color = "#F5853E") +
+    facet_wrap(~week, ncol=3) + 
+    labs(title="Delay minutes as a fuction of Temperature by week",
+         x="Temperature", y="Mean Trip Count", 
+         caption = "Figure 2.2") +
+    plotTheme()
+
+# Categorical Vars
+ride.panel %>%
+  dplyr::select(delay_minutes, dotw, Peak, Day, Weather) %>%
+  gather(Variable, Value, -delay_minutes) %>% 
+   ggplot(aes(Value, delay_minutes)) +
+     geom_bar(position = "dodge", stat = "summary", fill = "#F5853E", fun.y = "mean") +
+     facet_wrap(~Variable, ncol = 1, scales = "free") +
+     labs(title = "Delay minutes as a Function of\nCategorical Variables", y = "Delay Minutes", 
+          caption="Figure 2.3") +
+     plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Exploratory Analysis, fig.align = "center", warning = FALSE}
+
+# charting delays by line
 ride.Train %>% #This is here just t see delays. we could takeit out
   group_by(line) %>% 
-  summarise(Delay = sum(delay_minutes)) %>%  kable(caption = "Lines by Delays (Figure 2.2a)") %>%
+  summarise(Delay = sum(delay_minutes)) %>%  kable(caption = "Lines by Delays (Figure 2.4a)") %>%
   kable_styling("striped",full_width = F) 
 
 group_by(ride.Train, line) %>% #Delay by line
@@ -303,7 +332,7 @@ group_by(ride.Train, line) %>% #Delay by line
     geom_col() + coord_flip() +
     scale_fill_manual(values = palette5) +
     labs(x = "Line", y = "Delay Minutes", title= "Delay minutes by line", 
-         caption = "Figure 2.2b") +
+         caption = "Figure 2.4b") +
     plotTheme() + theme(legend.position = "none") 
 
 # Trip Count Serial Autocorrelation EA
@@ -327,7 +356,7 @@ rbind( #change this?
         geom_vline(data = mondays, aes(xintercept = monday)) +
         labs(title="Delay minutes by week: September-November 2019",
              subtitle="Dotted line for Halloween", 
-             x="Day", y="Delay Minutes", caption = "Figure 2.3") +
+             x="Day", y="Delay Minutes", caption = "Figure 2.5") +
         plotTheme() + theme(panel.grid.major = element_blank()) 
 
 # Time Lags
@@ -345,26 +374,13 @@ ggplot(plotData.lag, aes(Value, delay_minutes)) +
   geom_point(size = 0.1) +
   geom_text(data = correlation.lag, aes(label = paste("r =", round(correlation, 2))),
             x=-Inf, y=Inf, vjust = 1.5, hjust = -.1) +
-  geom_smooth(method = "lm", se = FALSE, colour = "blue") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#F5853E") +
   facet_wrap(~Variable, ncol = 3, scales = "free") +
   labs(title = "Delay minutes as a Function of Time Lag",
        subtitle="One week in October 2019", 
-       caption = "Figure 2.4") +
+       caption = "Figure 2.6") +
   plotTheme()
 
-# Weather EA
-ride.panel %>%
-  group_by(interval60) %>% 
-  summarize(DM = mean(delay_minutes),
-            Temperature = first(Temperature)) %>%
-  mutate(week = week(interval60)) %>%
-  ggplot(aes(Temperature, DM)) + 
-    geom_point() + geom_smooth(method = "lm", se= FALSE) +
-    facet_wrap(~week, ncol=3) + 
-    labs(title="Delay minutes as a fuction of Temperature by week",
-         x="Temperature", y="Mean Trip Count", 
-         caption = "Figure 2.5") +
-    plotTheme()
 
 # Bar Plot
 options(scipen=999)
@@ -384,34 +400,25 @@ ggcorrplot(
   insig = "blank") +  
     labs(title = "Correlation Across Numeric Variables", caption = "Figure 2.7") 
 
-# Extra
+# Max Stops
 ride.panel %>% 
   dplyr::select(delay_minutes, max_stops) %>% 
   gather(Variable, Value, -delay_minutes) %>% 
    ggplot(aes(Value, delay_minutes)) +
-     geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
+     geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#F5853E") +
      facet_wrap(~Variable, ncol = 3, scales = "free") +
      labs(title = "Delay minutes as a function of max stops", 
           caption="Figure 2.8") +
      plotTheme()
 
-ride.panel %>%
-  dplyr::select(delay_minutes, dotw, Peak, Day, Weather) %>%
-  gather(Variable, Value, -delay_minutes) %>% 
-   ggplot(aes(Value, delay_minutes)) +
-     geom_bar(position = "dodge", stat = "summary", fun.y = "mean") +
-     facet_wrap(~Variable, ncol = 1, scales = "free") +
-     labs(title = "Delay minutes as a Function of\nCategorical Variables", y = "Delay Minutes", 
-          caption="Figure 2.9") +
-     plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 ```
+
 
 # Regression Models 
 The code below are the 5 iterations of our predictive models. Regression 1 is the baseline regression with no feature engineered or overly descriptive variables included. Regression 4 is our best suited model and includes all feature engineered variables.
 Regression 4 has an adjusted r-squared value of 34%. This means that the model explains 34% of variation in the data. While we wish this number were to be higher, it is an immense improvement from the baseline regression, which is about 3%. 
 A major factor that helped our model was conducting a log on our delay minutes. Prior to the log, our delay minutes was incredibly left-skewed (meaning lots of small delays). The process of logging our delay minutes allowed for the data to be more normally-distributed, so that the model could perform better. Later in the code, we exponentiate delay minutes, so it will read as a unit of minutes again. 
-```{r Linear Regression Models}
+```{r Linear Regression Models, echo=FALSE, results = 'hide'}
 # Linear - Baseline
 test.reg.linear1 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + line, data=ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1)) # STARGAZER HERE!!
 summary(test.reg.linear1) #rsquare .031
@@ -432,7 +439,7 @@ summary(test.reg.linear5) #rsquare .34
 
 ## Regression Model Summaries
 Below is a regression summary of our best-fit model. This model includes: day of the week, the line, peak hours, all of our spatial lays, weather analysis, and number of trips the line takes in an hour. 
-```{r model sum stats}
+```{r model sum stats, results = 'asis'}
 #---Polished LM table of training dataset
 stargazer(test.reg.linear4, type="html", digits=1, title="Linear Model of Training Dataset (Figure 3)", out = "Training LM.txt")
 ```
@@ -441,7 +448,7 @@ stargazer(test.reg.linear4, type="html", digits=1, title="Linear Model of Traini
 
 ## Validation by Regression
 Below are regression validations by time (both delay minutes and weeks). It is clear in these models that our featured engineered, or "best(-suited) regression," predicts the best. The overall error of the best regression is a 16 minute MAE. Figure 4.2 depicts how much better the best regression predicts and follows the variation of the observed delays much better.  
-```{r Validation by Regression}
+```{r Validation by Regression, fig.align = "center", warning = FALSE}
 # Validation by Regression
 ride.Test.weekNest <- 
   as.data.frame(ride.Test) %>%
@@ -469,7 +476,7 @@ week_predictions %>%
   gather(Variable, MAE, -Regression, -week) %>%
   ggplot(aes(week, MAE)) + 
     geom_bar(aes(fill = Regression), position = "dodge", stat="identity") +
-    scale_fill_manual(values = palette5) +
+    scale_fill_manual(values = palette2) +
     labs(title = "Mean Absolute Errors by model specification and week", caption = "Figure 4.1") +
   plotTheme()
 
@@ -490,7 +497,7 @@ week_predictions %>%
 
 ## Validation By Line
 As another step of our validation process, we wanted to explore how our best-suited regression performs for each of the 5 individual lines selected. We conducted cross-validation by line (Figure 5.1) and while this table may not be entirely useful, it does explore how our highest MAE is slightly above 17.5. Figure 5.2 depicts how well our best-suited regression lines up with observed delays on each line. Our best-suited regression follows the variation on the Gladstone Branch and NJ Coast lines well. It misses from variation on the Montclair-Boonton and Morristown lines and underpredicts on the Northeast Corridor line. Looking across Figure 5.3 (avg delay times by line) and 5.6 (total predicted delay minutes in November), we notice that Morristown Line has the second highest avg. delay times and has the longest total delay minutes. 
-```{r Validation by Line, results = 'asis'}
+```{r Validation by Line 1, fig.height = 8, fig.width = 6, fig.align = "center", warning = FALSE}
 # Validation by Line
 wk45 <- unnest(week_predictions[5,])
 wk46 <- unnest(week_predictions[6,])
@@ -500,7 +507,7 @@ wk48 <- unnest(week_predictions[8,])
 test <- rbind(wk45, wk46, wk47, wk48)
 
 ggplot(test, aes(x=MAE)) + 
-  geom_histogram(fill = "blue") +
+  geom_histogram(fill = "#F5853E") +
   facet_wrap(~line, ncol=1) +
   labs(title = "Cross Validation Tests in Mean Average Error", caption = "Figure 5.1") +
   plotTheme()
@@ -516,7 +523,9 @@ test %>%
            subtitle = "By line by hourly interval",
            x = "Hour", y= "Delay Minutes", caption = "Figure 5.2") +
       plotTheme()
+```
 
+```{r Validation by Line 2, fig.align='center'}
 test %>% 
   group_by(line) %>%
   summarize(MAE = mean(MAE, na.rm = T),
@@ -528,7 +537,7 @@ test %>% # TRAIN ID
   group_by(line, train_id) %>%
   summarize(AvgDelay = mean(delay_minutes, na.rm=T)) %>%
   filter(AvgDelay > 58.5) %>%
-  kable(title = "Train ID and average delay time by Line", caption = "Top 20 Train IDs with Highest Delays by Avg Delay Time (Figure 5.4)") %>% kable_styling("striped",full_width = F)
+  kable(title = "Train ID and average delay time by Line", caption = "Top 20 Train IDs with Highest Delays by Avg Delay Time (Figure 5.4)") %>% kable_styling("striped",full_width = F) %>% scroll_box(width = "800px", height = "250px")
 
 #Adding delay during peak time 
 test_peakdelay <- 
@@ -564,19 +573,21 @@ test_delays %>%
             EveningDelay = mean(EveningDelay, na.rm=T)) %>%
   kable(title = "Average delays during peak time by Line", caption = "Avg Delays during Peak Time by Line (Figure 5.5)") %>%
   kable_styling("striped",full_width = F)
+```
 
+```{r Validation by Line 3}
 group_by(test, line) %>% #Delay by line
   ggplot(aes(reorder(line, Prediction, FUN = max), 
              delay_minutes, fill = line)) +
     geom_col() + coord_flip() +
     scale_fill_manual(values = palette5) +
     labs(x = "Line", y = "Delay Minutes", title= "Predicted Delay minutes by line", caption = "Figure 5.6") +
-    plotTheme() + theme(legend.position = "none") 
+    plotTheme() + theme(legend.position = "none")
 ```
 
 # Final Context Map
 Our final figure is a draft mockup of our first wireframe. Our hopes are that lines can be color coded by their delay times for future analysis. 
-```{r final context map}
+```{r final context map, fig.align = "center"}
 NovPrediction <- test %>%
   group_by(line) %>%
   summarize(totaldelay = sum(Prediction))
@@ -605,4 +616,4 @@ We have identified some features that would improve both the methodology and res
 As hinted at in our validation by line, our overall recommendation is that the Morristown Line is in desperate need of attention to mitigate delay times. That line had the second highest average delay time and the total most predicted delay minutes. That being said, we also believe that all of these lines require energy and time for improvement. For example, in our exploratory analysis, the Northeast Corridor was the biggest offender of delays. All of these lines see a large concentration of ridership and are incredibly important to the NJT system, and therefore, improvements to achieve perfect service (minimal delays) may increase ticket sales and consistency across ridership. 
 
 # Authors Note
-There was some difficulty in exporting this analysis as an R Markdown as options would either show results or hide tables. Please excuse unnecessary warnings and results in the markdown. 
+There was some difficulty in exporting this analysis as an R Markdown as options would either show results or hide tables. Please excuse unnecessary warnings and results in the markdown, especially in the Import Data section. 
