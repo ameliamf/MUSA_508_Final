@@ -3,28 +3,15 @@ title: "MUSA 508 Final Project: Predicting NJ Transit Delays"
 author: "Myron Bañez and Amelia Marcantonio-Fields"
 output: 
   html_document:
+    code_folding: hide
     fig_caption: yes
     toc: true
     toc_float: true
 editor_options: 
   markdown: 
     wrap: sentence
-  chunk_output_type: consol
+  chunk_output_type: console
 ---
-
-TOC (need to organize this way): 
-1. Set Up (need to show code chunks, but unsure if we need to show packages)
-2. Importing NJT Data
-3. Importing Weather Data
-4. Exploratory Analysis (Need to move up)
-5. Feature Engineering 
-6. Ride Panel (Need to move down? Or can be before 4?)
-7. Models
-8. Predictions 
-9. Evaluation 
-10. Conclusion
-nkknk
-
 # Introduction + Use Case 
 
 Our firm was contracted by New Jersey Transit to create a model-based dashboard that would aid them in their Capital Improvements Program (CIP) decision making by analyzing systematic delays. Unfortunately, New Jersey Transit has frequent issues with delayed trains, but there are plans to spend more money on infrastructure improvements that will make the system run more smoothly. In 2019, and for the second year in a row, NJT Trains broke down more than any other system in the county (according to the Federal Transit Administration). In January 2021, NJT ordered 25 new dual-powered locomotives that are in the process of being distributed and in 2023, 113 new multi-level rail cars will arrive to replace the 40-year old previous fleet. The mechanical failure rate of the new cars is a fraction of the previous fleet's. 
@@ -36,9 +23,8 @@ The user of this dashboard will hopefully be a NJT employee who works in logisti
 
 # Set Up
 Below is the setup for the analysis, including packages necessary and color palettes.
-```{r setup, include = TRUE, echo = TRUE}
-knitr::opts_chunk$set(echo = T,
-                      results = "hide")
+```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = FALSE}
+options(knitr.table.format = 'markdown')
 
 library(tidyverse)
 library(sf)
@@ -53,6 +39,7 @@ library(mapview)
 library(tidycensus)
 library(ggcorrplot)
 library(RColorBrewer)
+library(stargazer)
 
 options(tigris_class = "sf")
 source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
@@ -71,7 +58,7 @@ The code chunk below imports the New Jersey Transit data and completes the initi
 knitr::opts_chunk$set(echo = T,
                       results = "hide")
 
-setwd("C:/Users/ammar/OneDrive/Desktop/CPLN592/Final")
+setwd("C:/Users/ammar/OneDrive/Desktop/CPLN592/Final/MUSA_508_Final")
 
 Sep19 <- read_csv("September2019.csv") #training data
 
@@ -410,7 +397,7 @@ summary(test.reg.linear2) #rsqaure .033
 test.reg.linear3 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + line + train_id + lag1Hours + lag2Hours +lag3Hours + lag6Hours + lag24Hours + lag168Hours + Day + Peak + Weather, data=ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1))
 summary(test.reg.linear3) #rsqaure .32
 
-test.reg.linear4 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + (line * Peak) + Offender + lag1Hours + lag2Hours +lag3Hours + lag6Hours + lag24Hours + lag168Hours + Temperature + Wind_Speed + Rain + Trip_Count, data=ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1)) # STARGAZER HERE!!
+test.reg.linear4 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + (line * Peak) + Offender + lag1Hours + lag2Hours +lag3Hours + lag6Hours + lag24Hours + lag168Hours + Temperature + Wind_Speed + Percipitation + Trip_Count, data=ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1)) # STARGAZER HERE!!
 summary(test.reg.linear4) #rsquare .34
 
 test.reg.linear5 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + (line * Peak) + lag1Hours + lag2Hours +lag3Hours + lag6Hours + lag24Hours + lag168Hours + Weather + Trip_Count, data = ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1))
@@ -490,7 +477,7 @@ test <- rbind(wk45, wk46, wk47, wk48)
 ggplot(test, aes(x=MAE)) + 
   geom_histogram(fill = "blue") +
   facet_wrap(~line, ncol=1) +
-  labs(title = "Cross Validation Tests in Mean Average Error", caption="Figure 5.1") +
+  labs(title = "Cross Validation Tests in Mean Average Error", caption = "Figure 5.1") +
   plotTheme()
 
 test %>%  
@@ -516,8 +503,7 @@ test %>% # TRAIN ID
   group_by(line, train_id) %>%
   summarize(AvgDelay = mean(delay_minutes, na.rm=T)) %>%
   filter(AvgDelay > 58.5) %>%
-  kable(caption = "Train ID and average delay time by Line", caption = "Figure 5.4") %>%
-  kable_styling("striped",full_width = F)
+  kable(title = "Train ID and average delay time by Line", caption = "Figure 5.4") %>% kable_styling("striped",full_width = F)
 
 #Adding delay during peak time 
 test_peakdelay <- 
@@ -551,7 +537,7 @@ test_delays %>%
   group_by(line) %>%
   summarize(MorningDelay = mean(MorningDelay, na.rm=T),
             EveningDelay = mean(EveningDelay, na.rm=T)) %>%
-  kable(caption = "Average delays during peak time by Line", caption = "Figure 5.5") %>%
+  kable(title = "Average delays during peak time by Line", caption = "Figure 5.5") %>%
   kable_styling("striped",full_width = F)
 
 group_by(test, line) %>% #Delay by line
@@ -561,7 +547,6 @@ group_by(test, line) %>% #Delay by line
     scale_fill_manual(values = palette5) +
     labs(x = "Line", y = "Delay Minutes", title= "Predicted Delay minutes by line", caption = "Figure 5.6") +
     plotTheme() + theme(legend.position = "none") 
-
 ```
 
 # Final Context Map

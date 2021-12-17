@@ -1,0 +1,114 @@
+
+Linear Model of Training Dataset (Figure 3)
+==============================================================
+                                       Dependent variable:    
+                                   ---------------------------
+                                       log(delay_minutes)     
+--------------------------------------------------------------
+hour(interval60)                             0.02***          
+                                             (0.002)          
+                                                              
+dotw.L                                        0.01            
+                                             (0.02)           
+                                                              
+dotw.Q                                       0.4***           
+                                             (0.03)           
+                                                              
+dotw.C                                        0.02            
+                                             (0.02)           
+                                                              
+dotw4                                        0.2***           
+                                             (0.02)           
+                                                              
+dotw5                                         -0.01           
+                                             (0.02)           
+                                                              
+dotw6                                        0.1***           
+                                             (0.02)           
+                                                              
+lineMontclair-Boonton                        0.4***           
+                                              (0.1)           
+                                                              
+lineMorristown Line                          0.2***           
+                                             (0.05)           
+                                                              
+lineNo Jersey Coast                          0.3***           
+                                             (0.05)           
+                                                              
+lineNortheast Corrdr                         0.4***           
+                                             (0.05)           
+                                                              
+PeakNon-Peak                                 -0.6***          
+                                              (0.1)           
+                                                              
+PeakPM                                       -0.1**           
+                                              (0.1)           
+                                                              
+Offender                                     0.4***           
+                                             (0.04)           
+                                                              
+lag1Hours                                   0.002***          
+                                             (0.000)          
+                                                              
+lag2Hours                                   0.002***          
+                                             (0.000)          
+                                                              
+lag3Hours                                   0.002***          
+                                             (0.000)          
+                                                              
+lag6Hours                                   0.002***          
+                                             (0.000)          
+                                                              
+lag24Hours                                   -0.000           
+                                             (0.000)          
+                                                              
+lag168Hours                                  0.000*           
+                                             (0.000)          
+                                                              
+Temperature                                 -0.004***         
+                                             (0.001)          
+                                                              
+Wind_Speed                                   0.01***          
+                                             (0.002)          
+                                                              
+Percipitation                                 0.04            
+                                             (0.03)           
+                                                              
+Trip_Count                                   0.3***           
+                                             (0.002)          
+                                                              
+lineMontclair-Boonton:PeakNon-Peak           0.2***           
+                                              (0.1)           
+                                                              
+lineMorristown Line:PeakNon-Peak              0.1*            
+                                              (0.1)           
+                                                              
+lineNo Jersey Coast:PeakNon-Peak             0.5***           
+                                              (0.1)           
+                                                              
+lineNortheast Corrdr:PeakNon-Peak            0.3***           
+                                              (0.1)           
+                                                              
+lineMontclair-Boonton:PeakPM                  -0.05           
+                                              (0.1)           
+                                                              
+lineMorristown Line:PeakPM                    0.01            
+                                              (0.1)           
+                                                              
+lineNo Jersey Coast:PeakPM                    -0.03           
+                                              (0.1)           
+                                                              
+lineNortheast Corrdr:PeakPM                   0.03            
+                                              (0.1)           
+                                                              
+Constant                                      0.002           
+                                              (0.1)           
+                                                              
+--------------------------------------------------------------
+Observations                                 49,471           
+R2                                             0.3            
+Adjusted R2                                    0.3            
+Residual Std. Error                     1.6 (df = 49438)      
+F Statistic                         813.1*** (df = 32; 49438) 
+==============================================================
+Note:                              *p<0.1; **p<0.05; ***p<0.01
