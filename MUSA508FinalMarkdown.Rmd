@@ -19,12 +19,16 @@ Our model-based dashboard sets out to help NJT track where delays are the longes
 
 ## Project Pitch + Dashboard Mockups
 See our project pitch video at this link:
-The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our impending dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service.  
+The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our impending dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service.
+
+## Source
+https://www.nj.com/news/2021/01/nj-transit-trains-ranked-the-worst-in-the-nation-again.html
 
 # Set Up
 Below is the setup for the analysis, including packages necessary and color palettes.
 ```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = FALSE}
 options(knitr.table.format = 'markdown')
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, messages=FALSE, include=TRUE, fig.keep = 'all')
 
 library(tidyverse)
 library(sf)
@@ -463,8 +467,7 @@ week_predictions %>%
 
 ## Validation By Line
 
-Myron's notes as of 1:30am 
-- THIS BITCH REALLY TRIED TO KILL ME BRO READ CAREFULLY LOL
+
 ```{r Validation by Line}
 # Validation by Line
 wk45 <- unnest(week_predictions[5,])
@@ -566,3 +569,12 @@ ggplot() +
        caption = "Figure 6.1", fill = "line") +
   mapTheme(title_size = 11) + theme(legend.position = "right")
 ```
+
+
+# Conclusion 
+
+## Accuracy + Generalizability 
+ 
+## How to Improve 
+
+## Policy Recommendations
