@@ -14,21 +14,38 @@ editor_options:
 ---
 # Introduction + Use Case 
 
-Our firm was contracted by New Jersey Transit to create a model-based dashboard that would aid them in their Capital Improvements Program (CIP) decision making by analyzing systematic delays. Unfortunately, New Jersey Transit has frequent issues with delayed trains, but there are plans to spend more money on infrastructure improvements that will make the system run more smoothly. In 2019, and for the second year in a row, NJT Trains broke down more than any other system in the county (according to the Federal Transit Administration). In January 2021, NJT ordered 25 new dual-powered locomotives that are in the process of being distributed and in 2023, 113 new multi-level rail cars will arrive to replace the 40-year old previous fleet. The mechanical failure rate of the new cars is a fraction of the previous fleet's. 
+Our firm was contracted by New Jersey Transit to create a model-based dashboard that would aid them in their Capital Improvements Program (CIP) decision-making, by analyzing systematic delays. Unfortunately, New Jersey Transit has frequent issues with delayed trains, but there are plans to spend more money on infrastructure improvements that will make the system run more smoothly. In 2019, and for the second year in a row, NJT Trains broke down more than any other system in the county (according to the Federal Transit Administration). In January 2021, NJT ordered 25 new dual-powered locomotives that are in the process of being distributed and in 2023, 113 new multi-level rail cars will arrive to replace the 40-year old previous fleet. The mechanical failure rate of the new cars is a fraction of the previous fleet's. 
 Our model-based dashboard sets out to help NJT track where delays are the longest and prioritize lines that are experiencing frequent delays with the most profit potential by predicting delays into the future for CIP planning. Currently, the model focuses on the 5 lines that go directly into NYC. Check out the further report and model below: 
 
 ## Project Pitch + Dashboard Mockups
-See our project pitch video at this link:
-The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our impending dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service.
+See our project pitch video at this link: https://www.youtube.com/watch?v=o9lDDhZ5rvc
+The user of this dashboard will hopefully be a NJT employee who works in logistics and does capital improvements planning. Our project pitch includes 3 wireframes of our potential dashboard. The first wireframe is an interactive map that will be colored by delay times. The NJT employee users will be able to select the line and timeframe to see which lines are struggling most with delays. The second wireframe will present summarized tabular data, where a NJT employee can explore the line, time, avg delay, and ridership. The third and last wireframe is a CIP planning calculator. Once inputting relevant information like the line, timeframe, and intensity of repair, the dashboard will deduce costs spent, but also costs gained from consistent and solid service leaving a net value.
 
 ## Source
 https://www.nj.com/news/2021/01/nj-transit-trains-ranked-the-worst-in-the-nation-again.html
 
+# Methodology
+Our methodology for this analysis can be categorized in three different processes: data collection + manipulation, model building, and evaluation 
+## Data Collection 
+- Pull in relevant NJT data (both training and test time periods)
+- Filter and clean data to be most fitting and specific (lines going into NYC, removing outliers)
+- Pull in our external variable, weather data, and clean the variable 
+- Create our ride panel, or spatial time-series, dataset that is crucial to the following analysis 
+- Feature engineer variables (manipulate them to perform the best in the model)
+- Conduct exploratory analysis to see the most significant variables to include in the model
+## Model Building 
+- Create a baseline regression model with minimal variables for comparison sake
+- Run iterations of models to see which produces the best results (Model 4)
+## Evaluation
+- Once the models are completed, run an evaluation of the baseline and best-suited regression that includes charting and summary statistics
+- Run validation by line to get more nuanced results for policy recommendations
+
+
 # Set Up
 Below is the setup for the analysis, including packages necessary and color palettes.
-```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = FALSE}
-options(knitr.table.format = 'markdown')
-knitr::opts_chunk$set(echo=TRUE, warning=FALSE, messages=FALSE, include=TRUE, fig.keep = 'all')
+```{r setup, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = TRUE, include = TRUE, fig.keep='all'}
+
+#knitr::opts_chunk$set(echo=TRUE, warning=FALSE, messages=FALSE, results = 'hide', include=TRUE, fig.keep = 'all')
 
 library(tidyverse)
 library(sf)
@@ -59,8 +76,6 @@ palettechloro <-c("#fef0d9", "#fdcc8a", "#fc8d59", "#e34a33", "#b30000")
 # Importing + Filtering the Data
 The code chunk below imports the New Jersey Transit data and completes the initial, necessary cleaning. Data from September and October 2019 is used to train on. These two months were chosen under the pretense that they would illustrate regular usage patterns. November 2019 data will be predicted on. NJT data is filtered for lines going directly into New York City, for which there are 5. Time intervals, especially lines running every hour, are also created for later analysis. 
 ```{r Import Data}
-knitr::opts_chunk$set(echo = T,
-                      results = "hide")
 
 setwd("C:/Users/ammar/OneDrive/Desktop/CPLN592/Final/MUSA_508_Final")
 
@@ -91,7 +106,7 @@ AllData <- #not sure about actual_time #copied from the book but cut out some of
 ```
 
 ## NJT Context Map
-Below is a contextual map of the lines selected for prediction analysis. 
+Below is a map of the lines selected for prediction analysis. 
 ```{r Line Data}
 NJTRoutes <- 
   st_read("https://opendata.arcgis.com/datasets/e6701817be974795aecc7f7a8cc42f79_0.geojson") %>%
@@ -257,8 +272,14 @@ Our feature engineering and model creation was built on the following analysis. 
 - Figure 2.8 depicts delay minutes as a function of max stops (how many stops on a line)
 - Figure 2.9 shows delay minutes as a function of various categorical variables
 
-NEED TO MENTION HIGHLIGHTS
-
+Highlights of our exploratory analysis are: 
+- The NJ Coast and Morristown line have the longest summary of delays on the training set
+- The 2, 3, and 6 hour spatial lags seem to effect delays the most 
+- Many of our numeric variables are not colinear, which is a good sign for model building
+- Longer delay minutes are correlated with more stops on a line
+- Longer delays occur in hotter weather 
+- Longer delays happen in PM peak service times (4-7 PM) 
+- Delays have a cyclical pattern, often occurring during weekend service 
 ```{r Exploratory Analysis}
 
 # charting weather over the 3 month period
@@ -388,7 +409,8 @@ ride.panel %>%
 
 # Regression Models 
 The code below are the 5 iterations of our predictive models. Regression 1 is the baseline regression with no feature engineered or overly descriptive variables included. Regression 4 is our best suited model and includes all feature engineered variables.
-
+Regression 4 has an adjusted r-squared value of 34%. This means that the model explains 34% of variation in the data. While we wish this number were to be higher, it is an immense improvement from the baseline regression, which is about 3%. 
+A major factor that helped our model was conducting a log on our delay minutes. Prior to the log, our delay minutes was incredibly left-skewed (meaning lots of small delays). The process of logging our delay minutes allowed for the data to be more normally-distributed, so that the model could perform better. Later in the code, we exponentiate delay minutes, so it will read as a unit of minutes again. 
 ```{r Linear Regression Models}
 # Linear - Baseline
 test.reg.linear1 <- lm(log(delay_minutes) ~ hour(interval60) + dotw + line, data=ride.Train %>% mutate(delay_minutes = delay_minutes + 0000.1)) # STARGAZER HERE!!
@@ -409,7 +431,8 @@ summary(test.reg.linear5) #rsquare .34
 ```
 
 ## Regression Model Summaries
-```{r model sum stats, results='asis'}
+Below is a regression summary of our best-fit model. This model includes: day of the week, the line, peak hours, all of our spatial lays, weather analysis, and number of trips the line takes in an hour. 
+```{r model sum stats}
 #---Polished LM table of training dataset
 stargazer(test.reg.linear4, type="html", digits=1, title="Linear Model of Training Dataset (Figure 3)", out = "Training LM.txt")
 ```
@@ -417,7 +440,7 @@ stargazer(test.reg.linear4, type="html", digits=1, title="Linear Model of Traini
 # Validation
 
 ## Validation by Regression
-Below are regression validations by time (both delay minutes and weeks). It is clear in these models that our featured engineered, or "best regression," predicts the best. The overall error of the best regression is a 16 minute MAE. Figure 4.2 depicts how much better the best regression predicts and follows the variation of the observed delays much better.  
+Below are regression validations by time (both delay minutes and weeks). It is clear in these models that our featured engineered, or "best(-suited) regression," predicts the best. The overall error of the best regression is a 16 minute MAE. Figure 4.2 depicts how much better the best regression predicts and follows the variation of the observed delays much better.  
 ```{r Validation by Regression}
 # Validation by Regression
 ride.Test.weekNest <- 
@@ -466,9 +489,8 @@ week_predictions %>%
 ```
 
 ## Validation By Line
-
-
-```{r Validation by Line}
+As another step of our validation process, we wanted to explore how our best-suited regression performs for each of the 5 individual lines selected. We conducted cross-validation by line (Figure 5.1) and while this table may not be entirely useful, it does explore how our highest MAE is slightly above 17.5. Figure 5.2 depicts how well our best-suited regression lines up with observed delays on each line. Our best-suited regression follows the variation on the Gladstone Branch and NJ Coast lines well. It misses from variation on the Montclair-Boonton and Morristown lines and underpredicts on the Northeast Corridor line. Looking across Figure 5.3 (avg delay times by line) and 5.6 (total predicted delay minutes in November), we notice that Morristown Line has the second highest avg. delay times and has the longest total delay minutes. 
+```{r Validation by Line, results = 'asis'}
 # Validation by Line
 wk45 <- unnest(week_predictions[5,])
 wk46 <- unnest(week_predictions[6,])
@@ -499,14 +521,14 @@ test %>%
   group_by(line) %>%
   summarize(MAE = mean(MAE, na.rm = T),
             AvgDelay = mean(delay_minutes, na.rm=T)) %>%
-  kable(title = "MAE and average delay time by Line", caption = "Figure 5.3") %>%
+  kable(title = "MAE and average delay time by Line", caption = "MAE and Avg. Delay Time by Line (Figure 5.3)") %>%
   kable_styling("striped",full_width = F)
 
 test %>% # TRAIN ID
   group_by(line, train_id) %>%
   summarize(AvgDelay = mean(delay_minutes, na.rm=T)) %>%
   filter(AvgDelay > 58.5) %>%
-  kable(title = "Train ID and average delay time by Line", caption = "Figure 5.4") %>% kable_styling("striped",full_width = F)
+  kable(title = "Train ID and average delay time by Line", caption = "Top 20 Train IDs with Highest Delays by Avg Delay Time (Figure 5.4)") %>% kable_styling("striped",full_width = F)
 
 #Adding delay during peak time 
 test_peakdelay <- 
@@ -514,7 +536,7 @@ test_peakdelay <-
   group_by(line) %>%  
   filter(Peak == "AM" | Peak == "PM")
 
-test_AMdelay <- # trying to get peak in the previous line was HARD, so i filtered lol
+test_AMdelay <- # filtering for AM speak
   test %>%
   group_by(line) %>%
   filter(Peak == "AM")
@@ -529,7 +551,7 @@ test_PMdelay <- # repeated the process for the evening
   group_by(line) %>%
   filter(Peak == "PM")
 
-test_PMdelay <- # predidcted EVENING delay time during peak by line
+test_PMdelay <- # predicted EVENING delay time during peak by line
 test_PMdelay %>% 
   group_by(line) %>%
   mutate(EveningDelay = mean(Prediction))
@@ -540,7 +562,7 @@ test_delays %>%
   group_by(line) %>%
   summarize(MorningDelay = mean(MorningDelay, na.rm=T),
             EveningDelay = mean(EveningDelay, na.rm=T)) %>%
-  kable(title = "Average delays during peak time by Line", caption = "Figure 5.5") %>%
+  kable(title = "Average delays during peak time by Line", caption = "Avg Delays during Peak Time by Line (Figure 5.5)") %>%
   kable_styling("striped",full_width = F)
 
 group_by(test, line) %>% #Delay by line
@@ -553,7 +575,7 @@ group_by(test, line) %>% #Delay by line
 ```
 
 # Final Context Map
-
+Our final figure is a draft mockup of our first wireframe. Our hopes are that lines can be color coded by their delay times for future analysis. 
 ```{r final context map}
 NovPrediction <- test %>%
   group_by(line) %>%
@@ -564,17 +586,23 @@ RoutesPredictions <- cbind(NJTRoutes, NovPrediction)
 ggplot() + 
   geom_sf(data = censustracts, color = "grey 89", fill = "transparent") +
   geom_sf(data = RoutesPredictions, aes(color = as.factor(totaldelay)), show.legend = "delay times") +
-  scale_color_manual(name = "line", values = palettechloro) +
+  scale_color_manual(name = "Sum Delay Minutes", values = palettechloro) +
   labs(title = "Chosen NJ Transit Routes: November 2019 Predicted Delays",
        caption = "Figure 6.1", fill = "line") +
   mapTheme(title_size = 11) + theme(legend.position = "right")
 ```
 
-
 # Conclusion 
+Overall, we believe that our use case frame, methodology, and analysis offer important insights to New Jersey Transit. As noted in the Introduction, NJT obviously is addressing their system problems with new equipment and our dashboard will aid them in assigning where the new engines and cars would be best suited over long-term delays. Our methodology is a good basis for this analysis, even though our models sometimes fall short (more on that below). Despite our models having some shortcomings, our analysis definitely shows clear recommendations on which lines need more attention. 
 
 ## Accuracy + Generalizability 
- 
+Again, our model is trained off of September and October 2019 data and predicts delay times for November 2019. Our best-suited model, on a high-level, is overall accurate and generalizable. Since our use case is high-level, we want to be thinking about the longest and most-inconvenient delays. That being said, our MAE on average is around 16 minutes. Ideally, we would like this value to be lower. Our model is definitely generalizble as it predicts moderately well on the November 2019 dataset. But as seasons change, we would need to re-evaluate the model to consider more systematic patterns of ridership and delays. That being said, our model is very NJT specific, so it would probably not generalize well on other transit lines. Our methodology could be adopted for other transit lines. 
+
 ## How to Improve 
+We have identified some features that would improve both the methodology and results of our model. Training on more months and further predicting on more months may have been better suited for our use case. As our use case is about long-term CIP planning and ideally we would have liked to be predicting 6 months out, this might help with that cause. In terms of variables for our model, we would like to consider weather averages. Predicting the weather by hour by day is virtually an impossible task and historic averages would be more realistic for our model. There were also a few variables we needed to feature engineer better-including max stops as it relates to delay minutes and most importantly, train ID which is the individual set of train cars that run on a while. Train ID was a very significant variable, however, since there are so many, it could not be validated on. Lastly, extra data that could have improved our model are: ridership numbers, employees on a car, other trains (like Amtrak) running on the same tracks. 
 
 ## Policy Recommendations
+As hinted at in our validation by line, our overall recommendation is that the Morristown Line is in desperate need of attention to mitigate delay times. That line had the second highest average delay time and the total most predicted delay minutes. That being said, we also believe that all of these lines require energy and time for improvement. For example, in our exploratory analysis, the Northeast Corridor was the biggest offender of delays. All of these lines see a large concentration of ridership and are incredibly important to the NJT system, and therefore, improvements to achieve perfect service (minimal delays) may increase ticket sales and consistency across ridership. 
+
+# Authors Note
+There was some difficulty in exporting this analysis as an R Markdown as options would either show results or hide tables. Please excuse unnecessary warnings and results in the markdown. 
