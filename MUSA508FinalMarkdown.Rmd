@@ -70,14 +70,14 @@ source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-L
 root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
 
 
-palette5 <- c("#510541","#AEC4D6","#F5853E","#B61D8E","#004F99")
+palette5 <- c("#580E44","#47A6FF","#F5853E","#B61D8E","#004F99")
 palette2 <- c("#F5853E","#B61D8E")
 palettechloro <-c("#fef0d9", "#fdcc8a", "#fc8d59", "#e34a33", "#b30000")
 ```
 
 # Importing + Filtering the Data
 The code chunk below imports the New Jersey Transit data and completes the initial, necessary cleaning. Data from September and October 2019 is used to train on. These two months were chosen under the pretense that they would illustrate regular usage patterns. November 2019 data will be predicted on. NJT data is filtered for lines going directly into New York City, for which there are 5. Time intervals, especially lines running every hour, are also created for later analysis. 
-```{r Import Data, results = 'hide', message=FALSE, warning=FALSE, cache=FALSE, echo = FALSE, include = TRUE}
+```{r Import Data, results = 'hide', message=FALSE, warning=FALSE}
 
 setwd("C:/Users/ammar/OneDrive/Desktop/CPLN592/Final/MUSA_508_Final")
 
@@ -109,7 +109,7 @@ AllData <- #not sure about actual_time #copied from the book but cut out some of
 
 ## NJT Context Map
 Below is a map of the lines selected for prediction analysis. 
-```{r Line Data, fig.align = "center"}
+```{r Line Data, results = 'hide', message=FALSE, warning=FALSE, fig.align = "center"}
 NJTRoutes <- 
   st_read("https://opendata.arcgis.com/datasets/e6701817be974795aecc7f7a8cc42f79_0.geojson") %>%
   st_transform('ESRI:102711') %>%
@@ -139,8 +139,8 @@ censustracts <-
 # Map 
 ggplot() + 
   geom_sf(data = censustracts, color = "grey 89", fill = "transparent") +
-  geom_sf(data = NJTRoutes, color = "#005DAA") +
-  geom_sf(data = NJTStations, color = "#B9C9DF") +
+  geom_sf(data = NJTRoutes, color = "#F5853E") +
+  geom_sf(data = NJTStations, color = "#B61D8E") +
   labs(title = "Chosen NJ Transit Routes",
        caption = "Figure 1") +
   mapTheme(title_size = 11) + theme(legend.position = "none")
