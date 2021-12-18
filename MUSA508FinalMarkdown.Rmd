@@ -565,7 +565,7 @@ test_PMdelay %>%
   group_by(line) %>%
   mutate(EveningDelay = mean(Prediction))
 
-test_delays <- rbind(test_AMdelay, test_PMdelay) # brought them bitches together
+test_delays <- rbind(test_AMdelay, test_PMdelay) # brought them together
 
 test_delays %>% 
   group_by(line) %>%

@@ -1914,7 +1914,7 @@ test_PMdelay %&gt;%
   group_by(line) %&gt;%
   mutate(EveningDelay = mean(Prediction))
 
-test_delays &lt;- rbind(test_AMdelay, test_PMdelay) # brought them bitches together
+test_delays &lt;- rbind(test_AMdelay, test_PMdelay) # brought them together
 
 test_delays %&gt;% 
   group_by(line) %&gt;%
